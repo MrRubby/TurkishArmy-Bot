@@ -1,35 +1,30 @@
 {
-    "system": {
-        "token": "",
-        "prefix": "!",
-        "SunucuID": "1287094848976846922",
-        "registryType": "global"
-    },
-    "serverInfo": {
-        "serverIP": "185.193.165.12",
-        "serverPORT": "27015",
-        "steamAPI": "9233F2D381505BD6F773D5EDDCC970E5"
-    },
-    "channelSet": {
-        "statChannelID": "1287765679361101885",
-        "statMessageID": "1287769876789854250",
-        "applicationLog": "1287765679361101885",
-        "registryChannel": "1287765698302574603"
-    },
-    "roleSet": {
-        "ticketRol": "1287165568612307037",
-        "registryRol": "1287165601906819072"
-    },
+    "token": "",
+    "prefix": "!",
+    "SunucuID": "1287094848976846922",
+    "registryType": "global",
+    "serverIP": "185.193.165.12",
+    "serverPORT": "27015",
+    "steamAPI": "9233F2D381505BD6F773D5EDDCC970E5",
+    "channelID": "1287765679361101885",
+    "messaageID": "1287769876789854250",
+    "ticketRol": "1287165568612307037",
     "localImage": "1287793524443709491",
+    "categoryId": "1287094849509527615",
+    "autoRol": "1287165585364353114",
+    "applicationLog": "1287765679361101885",
+    "registryRol": "1287165601906819072",
+    "registryChannel": "1287765698302574603",
     "reactMessageID": "1287766491449659393",
     "reactRoles": [
         { "emoji": "👍", "roleId": "1287165585364353114" },
         { "emoji": "👎", "roleId": "1287165601906819072" }
     ],
     "firstSetup": {
-        "reactChannel": "1287765707509075999",
-        "ticketChannel": "1287765707509075999",
-        "application": "1287765707509075999",
-        "linkedChannel": "1287765707509075999"
+        "reactChannel": "1287816394569678879",
+        "ticketChannel": "1287816394569678879",
+        "application": "1287816394569678879",
+        "linkedChannel": "1287816394569678879",
+        "upddateEmbed": "1287816394569678879"
     }
 }

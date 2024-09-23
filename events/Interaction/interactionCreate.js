@@ -103,7 +103,7 @@ export default (client) => {
                     allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
                 },
                 {
-                    id: config.roleSet.ticketRol,
+                    id: config.ticketRol,
                     allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
                 },
             ],
@@ -132,7 +132,7 @@ export default (client) => {
         const ticket = database.get(`ticket_${interaction.message.id}`);
         const logChannel = await interaction.client.channels.cache.get(database.fetch(`ticketKatagor_${interaction.guild.id}`).log);
 
-        if (!interaction.member.roles.cache.has(config.roleSet.ticketRol)) {
+        if (!interaction.member.roles.cache.has(config.ticketRol)) {
             return interaction.reply({ content: "❌ Bu komutu kullanmaya yetkiniz yok!", ephemeral: true });
         }
 
@@ -201,7 +201,7 @@ export default (client) => {
         const enteredAge = interaction.fields.getTextInputValue('userAge');
 
         // Kullanıcıya yeni rolü ver
-        const role = interaction.guild.roles.cache.get(config.roleSet.registryRol);
+        const role = interaction.guild.roles.cache.get(config.registryRol);
         if (role) {
             await interaction.member.roles.add(role);
         }
@@ -231,8 +231,14 @@ export default (client) => {
         // Veritabanından başvuru verilerini çekiyoruz
         const applicationData = database.get('applications') || [];
         const applicationIndex = applicationData.findIndex(data => data.user === interaction.user.id);
+
+        // Kullanıcının başvuru verisini alıyoruz
+        const userData = applicationData[applicationIndex];
+    
+        // Başvuru zamanını çekip timestamp'e dönüştürüyoruz
+        //const applicationTime = Math.floor(new Date(userData.applicationTime).getTime() / 1000);
  
-        if (database.has(`appComp_${interaction.user.id}`)) return interaction.reply({ content: `Yaptığınız başvurunun sonucu henüz belirlenmediği için yeni bir başvuru yapmanıza ne yazık ki izin veremiyoruz. Başvurunuzun üzerinden uzun bir süre geçtiyse, destek ekibimizden bilgi talep edebilirsiniz.`, ephemeral: true})
+        if (database.has(`appComp_${interaction.user.id}`)) return interaction.reply({ content: `<t:${applicationTime}:R> Yaptığınız başvurunun sonucu henüz belirlenmediği için yeni bir başvuru yapmanıza ne yazık ki izin veremiyoruz. Başvurunuzun üzerinden uzun bir süre geçtiyse, destek ekibimizden bilgi talep edebilirsiniz.`, ephemeral: true})
 
         const modal = new ModalBuilder()
         .setCustomId('applicationModal')
@@ -280,7 +286,7 @@ export default (client) => {
         const enteredSteamName = interaction.fields.getTextInputValue('steamName');
         const enteredSteamLink = interaction.fields.getTextInputValue('steamLınk');
     
-        const applicationLog = client.channels.cache.get(config.channelSet.applicationLog);
+        const applicationLog = client.channels.cache.get(config.applicationLog);
     
         try {
             const applicationTime = new Date().toISOString();
