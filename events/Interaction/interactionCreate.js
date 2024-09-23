@@ -231,14 +231,8 @@ export default (client) => {
         // Veritabanından başvuru verilerini çekiyoruz
         const applicationData = database.get('applications') || [];
         const applicationIndex = applicationData.findIndex(data => data.user === interaction.user.id);
-
-        // Kullanıcının başvuru verisini alıyoruz
-        const userData = applicationData[applicationIndex];
-    
-        // Başvuru zamanını çekip timestamp'e dönüştürüyoruz
-        //const applicationTime = Math.floor(new Date(userData.applicationTime).getTime() / 1000);
  
-        if (database.has(`appComp_${interaction.user.id}`)) return interaction.reply({ content: `<t:${applicationTime}:R> Yaptığınız başvurunun sonucu henüz belirlenmediği için yeni bir başvuru yapmanıza ne yazık ki izin veremiyoruz. Başvurunuzun üzerinden uzun bir süre geçtiyse, destek ekibimizden bilgi talep edebilirsiniz.`, ephemeral: true})
+        if (database.has(`appComp_${interaction.user.id}`)) return interaction.reply({ content: `Yaptığınız başvurunun sonucu henüz belirlenmediği için yeni bir başvuru yapmanıza ne yazık ki izin veremiyoruz. Başvurunuzun üzerinden uzun bir süre geçtiyse, destek ekibimizden bilgi talep edebilirsiniz.`, ephemeral: true})
 
         const modal = new ModalBuilder()
         .setCustomId('applicationModal')
