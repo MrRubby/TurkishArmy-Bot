@@ -12,15 +12,15 @@ export default client => {
 
         register_commands(client, client.config.registryType)
 
-        const channel = client.channels.cache.get(client.config.channelID); // Kanal ID'sini buraya ekleyin
-        const messageId = client.config.messaageID // Güncellenecek mesajın ID'sini buraya ekleyin
+        const channel = client.channels.cache.get(client.config.channelSet.statChannelID); // Kanal ID'sini buraya ekleyin
+        const messageId = client.config.channelSet.statMessageID // Güncellenecek mesajın ID'sini buraya ekleyin
         const message = await channel.messages.fetch(messageId)
         const ımageChannel = client.channels.cache.get(config.localImage)
 
 
 async function updateEmbed(message) {
     try {
-        const response = await fetch(`http://api.steampowered.com/IGameServersService/GetServerList/v1/?key=${client.steamAPI}&filter=\\addr\\${config.serverIP}:${config.serverPORT}`);
+        const response = await fetch(`http://api.steampowered.com/IGameServersService/GetServerList/v1/?key=${client.serverInfo.steamAPI}&filter=\\addr\\${config.serverInfo.serverIP}:${config.serverInfo.serverPORT}`);
         const data = await response.json();
         const playerCount = data.response.servers[0].players;
         const mapName = data.response.servers[0].map;
@@ -68,7 +68,7 @@ async function updateEmbed(message) {
         async function firstSetup() {
             const reactChannel = client.channels.cache.get(config.firstSetup.reactChannel);
             const ticketChannel = client.channels.cache.get(config.firstSetup.ticketChannel);
-            const regChannel = client.channels.cache.get(config.registryChannel);
+            const regChannel = client.channels.cache.get(config.channelSet.registryChannel);
             const linkedChannel = client.channels.cache.get(config.firstSetup.linkedChannel);
             const application = client.channels.cache.get(config.firstSetup.application);
         
@@ -149,7 +149,7 @@ async function updateEmbed(message) {
         
                 await regChannel.send({ embeds: [registEmbed], components: [regButton] });
             } else {
-                console.error(`Kayıt kanalı bulunamadı: ${config.registryChannel}`);
+                console.error(`Kayıt kanalı bulunamadı: ${config.channelSet.registryChannel}`);
             }
 
             if (linkedChannel) {
@@ -180,7 +180,7 @@ async function updateEmbed(message) {
                 linkedChannel.send({ embeds: [embed], components: [linkedButton] })
 
             } else {
-                console.error(`Linkler kanalı bulunamadı: ${config.registryChannel}`);
+                console.error(`Linkler kanalı bulunamadı: ${config.channelSet.registryChannel}`);
             }
 
             if (application) {
@@ -206,7 +206,7 @@ async function updateEmbed(message) {
         }
 
         async function updateMemberCounts() {
-            const guild = client.guilds.cache.get(config.SunucuID); // Replace with your guild ID
+            const guild = client.guilds.cache.get(config.system.SunucuID); // Replace with your guild ID
             if (!guild) {
                 console.log('Guild not found');
                 return;

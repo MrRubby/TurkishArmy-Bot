@@ -1,26 +1,26 @@
 {
-    "token": "MTI4NzA5MzMzNDI1ODc0OTQ5MA.GQyfGo.JPpU7pY_atZ-53Zk7jBN61GBNFaFxogAl_Ls6g",
-    "prefix": "!",
-    "SunucuID": "1287094848976846922",
-    "registryType": "global",
-    "serverIP": "185.193.165.12",
-    "serverPORT": "27015",
-    "steamAPI": "9233F2D381505BD6F773D5EDDCC970E5",
-    "channelID": "1287765679361101885",
-    "messaageID": "1287769876789854250",
-    "ticketRol": "1287165568612307037",
-    "hedefUye": "5000",
+    "system": {
+        "token": "",
+        "prefix": "!",
+        "SunucuID": "1287094848976846922",
+        "registryType": "global"
+    },
+    "serverInfo": {
+        "serverIP": "185.193.165.12",
+        "serverPORT": "27015",
+        "steamAPI": "9233F2D381505BD6F773D5EDDCC970E5"
+    },
+    "channelSet": {
+        "statChannelID": "1287765679361101885",
+        "statMessageID": "1287769876789854250",
+        "applicationLog": "1287765679361101885",
+        "registryChannel": "1287765698302574603"
+    },
+    "roleSet": {
+        "ticketRol": "1287165568612307037",
+        "registryRol": "1287165601906819072"
+    },
     "localImage": "1287793524443709491",
-    "guildMemberAdd": "1287765689121374278",
-    "guildMemberRemove": "1287765689121374278",
-    "mainVoiceChannel": "1287094849509527617",
-    "categoryId": "1287094849509527615",
-    "autoRol": "1287165585364353114",
-    "applicationLog": "1287765679361101885",
-    "activeMemberChannel": "1287683185102032896",
-    "voiceMemberChannel": "1287683204601479179",
-    "registryRol": "1287165601906819072",
-    "registryChannel": "1287765698302574603",
     "reactMessageID": "1287766491449659393",
     "reactRoles": [
         { "emoji": "👍", "roleId": "1287165585364353114" },

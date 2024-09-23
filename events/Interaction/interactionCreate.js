@@ -103,7 +103,7 @@ export default (client) => {
                     allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
                 },
                 {
-                    id: config.ticketRol,
+                    id: config.roleSet.ticketRol,
                     allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
                 },
             ],
@@ -132,7 +132,7 @@ export default (client) => {
         const ticket = database.get(`ticket_${interaction.message.id}`);
         const logChannel = await interaction.client.channels.cache.get(database.fetch(`ticketKatagor_${interaction.guild.id}`).log);
 
-        if (!interaction.member.roles.cache.has(config.ticketRol)) {
+        if (!interaction.member.roles.cache.has(config.roleSet.ticketRol)) {
             return interaction.reply({ content: "❌ Bu komutu kullanmaya yetkiniz yok!", ephemeral: true });
         }
 
@@ -201,7 +201,7 @@ export default (client) => {
         const enteredAge = interaction.fields.getTextInputValue('userAge');
 
         // Kullanıcıya yeni rolü ver
-        const role = interaction.guild.roles.cache.get(config.registryRol);
+        const role = interaction.guild.roles.cache.get(config.roleSet.registryRol);
         if (role) {
             await interaction.member.roles.add(role);
         }
@@ -286,7 +286,7 @@ export default (client) => {
         const enteredSteamName = interaction.fields.getTextInputValue('steamName');
         const enteredSteamLink = interaction.fields.getTextInputValue('steamLınk');
     
-        const applicationLog = client.channels.cache.get(config.applicationLog);
+        const applicationLog = client.channels.cache.get(config.channelSet.applicationLog);
     
         try {
             const applicationTime = new Date().toISOString();

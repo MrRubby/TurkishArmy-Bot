@@ -33,10 +33,6 @@ export default client => {
     });
 
     client.on(Events.MessageReactionRemove, async (reaction, user) => {
-        reactionRemove(reaction, user)
-    });
-
-    const reactionRemove = async (reaction, user) => {
         if (user.bot) return; // Botları yok say
 
         const tepkiRolleri = config.reactRoles;
@@ -62,6 +58,6 @@ export default client => {
         } catch (error) {
             console.error(chalk.red("[ERROR]" + ` Kullanıcıdan rol kaldırılırken bir hata oluştu: ${error}`));
         }
-    }
+    });
 
 }

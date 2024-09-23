@@ -1,6 +1,8 @@
 import { Client, Collection, GatewayIntentBits, Partials } from "discord.js"
 import { readdirSync, readFileSync } from "fs"
 import { createRequire } from "node:module"
+import dotenv from 'dotenv';
+dotenv.config();
 
 import path from "path"
 import chalk from "chalk"
@@ -20,7 +22,8 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildPresences,
-        GatewayIntentBits.GuildVoiceStates
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessageReactions
     ]
 })
 
@@ -52,7 +55,7 @@ readdirSync("./events").forEach(eventcategory => {
 })
 
 try {
-    client.login(config.token)
+    client.login(process.env.TOKEN)
 } catch (err) {
     switch (err.code) {
         case 'TokenInvalid':

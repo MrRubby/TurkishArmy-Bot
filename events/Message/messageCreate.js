@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export default client => {
 
     const config = client.config; // config'i kullanıyoruz
-    const prefix = config.prefix;
+    const prefix = config.system.prefix;
 
     client.on("messageCreate", async message => {
 
