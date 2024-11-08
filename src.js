@@ -2,6 +2,7 @@ import { Client, Collection, GatewayIntentBits, Partials } from "discord.js"
 import { readdirSync, readFileSync } from "fs"
 import { createRequire } from "node:module"
 import dotenv from 'dotenv';
+import axios from "axios"
 dotenv.config();
 
 import path from "path"
