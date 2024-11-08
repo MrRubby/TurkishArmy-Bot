@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import moment from "moment"
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ChannelType, PermissionsBitField, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ChannelType, PermissionsBitField, ModalBuilder, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from "discord.js";
 
 export default (client) => {
 
@@ -43,6 +43,30 @@ export default (client) => {
             if (customId === "application_cancel") {
                 await appDecline(interaction)
             }
+            
+            if (customId === "addUserToTicket") {
+                await handleAddUserToTicket(interaction)
+            }
+
+            if (customId === "selectUser") {
+                await handleSelectUser(interaction)
+            }
+
+            if (customId === "delUserToTicket") {
+                await handleDelUserToTicket(interaction)
+            }
+
+            if (customId === "selectUserDel") {
+                await handleDelSelectUser(interaction)
+            }
+            
+            if (customId === "proPub") {
+                await handleReactProPublic(interaction)
+            }
+            
+            if (customId === "jail") {
+                await handleReactJailbreak(interaction)
+            }
 
         } catch (error) {
             console.error(`[ERROR] Beklenmeyen bir hata oluştu: ${error}`);
@@ -69,7 +93,9 @@ export default (client) => {
         // Embed ve butonları oluşturma
         const openTicEmbed = createTicketEmbed(interaction);
         const closeButton = createCloseButton();
-        const buttonRow = new ActionRowBuilder().addComponents(closeButton);
+        const addButton = createAddButton()
+        const delButton = createDelButton()
+        const buttonRow = new ActionRowBuilder().addComponents(closeButton, addButton, delButton);
 
         interaction.reply({ content: `Sorunun için [destek kanalı](https://discord.com/channels/${interaction.guild.id}/${channel.id}) oluşturuldu!`, ephemeral: true });
 
@@ -127,7 +153,99 @@ export default (client) => {
             .setStyle(ButtonStyle.Success);
     };
 
-    // Ticket kapatma fonksiyonu
+    // Kişi ekle butonu oluşturmaa fonksiyonu
+    const createAddButton = () => {
+        return new ButtonBuilder()
+        .setCustomId("addUserToTicket")
+        .setEmoji('➕')
+        .setLabel("Kişi Ekle")
+        .setStyle(ButtonStyle.Primary);
+    }
+
+    // Kişi çıkar butonu oluşturma fonksiyonu
+    const createDelButton = () => {
+        return new ButtonBuilder()
+        .setCustomId("delUserToTicket")
+        .setEmoji('❌')
+        .setLabel("Kişi Çıkar")
+        .setStyle(ButtonStyle.Primary);
+    }
+
+    // Kullanıcıyı seçme ve ekleme menüsü oluşturma
+    const handleAddUserToTicket = async (interaction) => {
+        // UserSelectMenu oluşturma
+        const userSelectMenu = new UserSelectMenuBuilder()
+        .setCustomId("selectUser")
+        .setPlaceholder("Kişi Seç")
+        .setMinValues(1)
+
+        const row = new ActionRowBuilder().addComponents(userSelectMenu);
+
+        // Menüyü gösterme
+        await interaction.reply({ content: "Kanala eklemek istediğiniz kişiyi seçin:", components: [row], ephemeral: true });
+    };
+
+    // Kullanıcıyı seçme ve çıkarma menüsü oluşturma
+    const handleDelUserToTicket = async (interaction) => {
+        // UserSelectMenu oluşturma
+        const userSelectMenu = new UserSelectMenuBuilder()
+        .setCustomId("selectUserDel")
+        .setPlaceholder("Kişi Seç")
+        .setMinValues(1)
+
+        const row = new ActionRowBuilder().addComponents(userSelectMenu);
+
+        // Menüyü gösterme
+        await interaction.reply({ content: "Kanaldan çıkarmak istediğiniz kişiyi seçin:", components: [row], ephemeral: true });
+    }
+
+    // Seçilen kullanıcıyı destek kanalına ekleme
+    const handleSelectUser = async (interaction) => {
+        const selectedUserId = interaction.values[0];
+        const channel = interaction.channel;
+    
+        // Kanalda kullanıcının izinlerini kontrol et
+        const existingPermissions = channel.permissionOverwrites.cache.get(selectedUserId);
+    
+        if (existingPermissions) {
+            // Kullanıcının zaten kanal izinleri varsa uyarı mesajı gönder
+            return await interaction.reply({ content: `<@${selectedUserId}> zaten bu kanalda mevcut.`, ephemeral: true });
+        }
+    
+        // Kullanıcıyı kanala ekleme
+        await channel.permissionOverwrites.edit(selectedUserId, {
+            ViewChannel: true,
+            SendMessages: true
+        });
+    
+        // Bilgilendirme mesajı
+        const user = await interaction.guild.members.fetch(selectedUserId);
+        await interaction.reply({ content: `<@${user.id}> başarıyla kanala eklendi!`, ephemeral: true });
+    };
+
+    // Seçilen kullanıcıyı destek kanalından çıkarma
+    const handleDelSelectUser = async (interaction) => {
+        const selectedUserId = interaction.values[0];
+        const channel = interaction.channel;
+
+        // Kanalda kullanıcının izinlerini kontrol et
+        const existingPermissions = channel.permissionOverwrites.cache.get(selectedUserId);
+
+        if (existingPermissions) {
+
+            // Kullanıcının izinlerini sil
+            await channel.permissionOverwrites.delete(selectedUserId);
+            // Bilgilendirme mesajı
+            await interaction.reply({ content: `<@${selectedUserId}> başarıyla kanaldan çıkarıldı!`, ephemeral: true });
+
+        } else {
+            // Kullanıcının kanal izinleri yoksa mesaj gönder
+            return await interaction.reply({ content: `<@${selectedUserId}> zaten bu kanalda mevcut değil.`, ephemeral: true });
+        }
+    
+    }
+
+// Ticket kapatma fonksiyonu
     const handleCloseTicket = async (interaction) => {
         const ticket = database.get(`ticket_${interaction.message.id}`);
         const logChannel = await interaction.client.channels.cache.get(database.fetch(`ticketKatagor_${interaction.guild.id}`).log);
@@ -139,14 +257,11 @@ export default (client) => {
         const channel = interaction.guild.channels.cache.get(ticket.channelId);
         const user = await interaction.client.users.fetch(ticket.userId);
 
-        // Kapatma log embed'i oluşturma
         const logEmbed = createCloseTicketEmbed(user, channel, interaction);
 
-        // Log kanalına ve kullanıcıya mesaj gönder
         await logChannel.send({ embeds: [logEmbed] });
         await user.send({ embeds: [logEmbed] });
 
-        // Veritabanından ve sunucudan sil
         database.delete(`ticket_${interaction.message.id}`);
         database.delete(`ticket_${user.id}`);
         await channel.delete();
@@ -160,9 +275,10 @@ export default (client) => {
             .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
             .addFields([
                 { name: `Talep Sahibi`, value: `<@${user.id}> - \`\`${user.id}\`\`` },
+                { name: `Talep Sonlandıran`, value: `<@${interaction.user.id}> - \`\`${interaction.user.id}\`\`` },
                 { name: `Kanal`, value: `<#${channel.id}> - \`\`Ticket-${user.username}\`\` ` },
             ])
-            .setFooter({ text: "RegularNetwork | Copyright ©️ 2024 Tüm Hakları Saklıdır." });
+            .setFooter({ text: "Turkish Army | Copyright ©️ 2024 Tüm Hakları Saklıdır." });
     };
 
     // Kayıt butonunda açılacak menü
@@ -195,35 +311,41 @@ export default (client) => {
     }
 
     // Kayıt işleminin tamamlanması
-    const completeReg = async (interaction) => {
+const completeReg = async (interaction) => {
 
-        const enteredName = interaction.fields.getTextInputValue('userName');
-        const enteredAge = interaction.fields.getTextInputValue('userAge');
+    const enteredName = interaction.fields.getTextInputValue('userName');
+    const enteredAge = interaction.fields.getTextInputValue('userAge');
 
-        // Kullanıcıya yeni rolü ver
-        const role = interaction.guild.roles.cache.get(config.registryRol);
-        if (role) {
-            await interaction.member.roles.add(role);
-        }
-
-        // Kullanıcının ismini güncelleme
-        const newNickname = `${enteredName} | ${enteredAge}`;
-        await interaction.member.setNickname(newNickname);
-
-        // Kullanıcıya DM ile başarı mesajı gönderme
-        try {
-            await interaction.user.send({
-                 content: `Başarıyla kayıt oldunuz! Adınız: **${enteredName}**, Yaşınız: **${enteredAge}**`
-            });
-        } catch (error) {
-            console.error(`[ERROR] Kullanıcıya DM gönderilemedi: ${error.message}`);
-            await interaction.reply({ content: '❌ Özel mesaj gönderilemedi, DM kutunuz kapalı olabilir.', ephemeral: true });
-        }
-
-        // Sunucu kanalında sessiz yanıt gönderme
-        await interaction.reply({ content: 'Kayıt işleminiz tamamlandı! DM kutunuzu kontrol edin.', ephemeral: true });
-
+    // Yaş doğrulama
+    const age = parseInt(enteredAge);
+    if (isNaN(age) || age < 13 || age > 100) {
+        return await interaction.reply({ content: '❌ Geçersiz yaş girdiniz. Yaşınız 13 ile 100 arasında olmalıdır.', ephemeral: true });
     }
+
+    // Kullanıcıya yeni rolü ver
+    const role = interaction.guild.roles.cache.get(config.registryRol);
+    if (role) {
+        await interaction.member.roles.add(role);
+    }
+
+    // Kullanıcının ismini güncelleme
+    const newNickname = `${enteredName} | ${enteredAge}`;
+    await interaction.member.setNickname(newNickname);
+
+    // Kullanıcıya DM ile başarı mesajı gönderme
+    try {
+        await interaction.user.send({
+            content: `Başarıyla kayıt oldunuz! Adınız: **${enteredName}**, Yaşınız: **${enteredAge}**`
+        });
+    } catch (error) {
+        console.error(`[ERROR] Kullanıcıya DM gönderilemedi: ${error.message}`);
+        await interaction.reply({ content: '❌ Özel mesaj gönderilemedi, DM kutunuz kapalı olabilir.', ephemeral: true });
+    }
+
+    // Sunucu kanalında sessiz yanıt gönderme
+    await interaction.reply({ content: 'Kayıt işleminiz tamamlandı! DM kutunuzu kontrol edin.', ephemeral: true });
+
+}
 
     // Başvuru butonunda açılacak menü
     const openModalApp = async (interaction) => {
@@ -366,7 +488,7 @@ export default (client) => {
     
         // Eski embed'in tüm alanlarını kopyalayarak yeni embed oluşturuyoruz
         const newEmbed = EmbedBuilder.from(oldEmbed) 
-            .setDescription(`<@${user.id}> - \`${user.id}\` kullanıcısının başvurusu <@${interaction.user.id}> - \`${interaction.user.id}\` tarafından onaylandı. Geri kalan işlemler için kullanıcı ile iletişim kurmanız gerekebilir!`);
+            .setDescription(`\`${user.username}\` - \`${user.id}\` kullanıcısının başvurusu <@${interaction.user.id}> - \`${interaction.user.id}\` tarafından onaylandı. Geri kalan işlemler için kullanıcı ile iletişim kurmanız gerekebilir!`);
     
         const button = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -434,7 +556,7 @@ export default (client) => {
     
         // Eski embed'in tüm alanlarını kopyalayarak yeni embed oluşturuyoruz
         const newEmbed = EmbedBuilder.from(oldEmbed)
-            .setDescription(`<@${user.id}> - \`${user.id}\` kullanıcısının başvurusu <@${interaction.user.id}> - \`${interaction.user.id}\` tarafından reddedildi!`);
+            .setDescription(`\`${user.username}\` - \`${user.id}\` kullanıcısının başvurusu <@${interaction.user.id}> - \`${interaction.user.id}\` tarafından reddedildi!`);
     
         await interaction.update({ embeds: [newEmbed], components: [button] });
     
@@ -446,5 +568,63 @@ export default (client) => {
         database.set('applications', applicationData);
         database.delete(`appComp_${user.id}`);
     };
+    
+    const handleReactProPublic = async (interaction) => {
+        
+        const role = interaction.guild.roles.cache.get(config.tepkiRolleri.ProPublic)
+        
+        if (!role) {
+            await interaction.reply({ content: "Üzgünüm sunucudan belirlenen rol bulunamadı. Yetkili kişilere bu durumu iletmen gerekiyor!", ephemeral: true })
+        }
+        
+        const hasRole = interaction.member.roles.cache.has(role.id)
+        
+        try {
+            
+            if (hasRole) {
+                // Eğer kullanıcıda rol varsa, rolü kaldır
+                await interaction.member.roles.remove(role);
+                await interaction.reply({ content: `❌ **${role.name}** rolü sizden alındı!`, ephemeral: true });
+            } else {
+                // Eğer kullanıcıda rol yoksa, rolü ekle
+                await interaction.member.roles.add(role);
+                await interaction.reply({ content: `✅ **${role.name}** rolü size verildi!`, ephemeral: true });
+            }
+            
+        } catch (error) {
+            console.error(chalk.red(`[ERROR] Rol işlenirken bir hata oluştu: ${error}`));
+            await interaction.reply({ content: 'Rol işleminde bir hata oluştu. Lütfen daha sonra tekrar deneyin.', ephemeral: true });
+        }
+        
+    }
+    
+    const handleReactJailbreak = async (interaction) => {
+        
+        const role = interaction.guild.roles.cache.get(config.tepkiRolleri.Jailbreak)
+        
+        if (!role) {
+            await interaction.reply({ content: "Üzgünüm sunucudan belirlenen rol bulunamadı. Yetkili kişilere bu durumu iletmen gerekiyor!", ephemeral: true })
+        }
+        
+        const hasRole = interaction.member.roles.cache.has(role.id)
+        
+        try {
+            
+            if (hasRole) {
+                // Eğer kullanıcıda rol varsa, rolü kaldır
+                await interaction.member.roles.remove(role);
+                await interaction.reply({ content: `❌ **${role.name}** rolü sizden alındı!`, ephemeral: true });
+            } else {
+                // Eğer kullanıcıda rol yoksa, rolü ekle
+                await interaction.member.roles.add(role);
+                await interaction.reply({ content: `✅ **${role.name}** rolü size verildi!`, ephemeral: true });
+            }
+            
+        } catch (error) {
+            console.error(chalk.red(`[ERROR] Rol işlenirken bir hata oluştu: ${error}`));
+            await interaction.reply({ content: 'Rol işleminde bir hata oluştu. Lütfen daha sonra tekrar deneyin.', ephemeral: true });
+        }
+        
+    }
 
 };
