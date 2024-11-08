@@ -41,6 +41,10 @@ export default client => {
                 // Embed mesajını gönder
                 await message.channel.send({ embeds: [ipEmbed] });
                 break;
+            case 'ping':
+                
+                const ping = Date.now() - message.createdTimestamp;
+        		message.channel.send(`Pong! Bot gecikmesi: ${ping}ms`);
 
             // Başka komutlar buraya eklenebilir
             default:
